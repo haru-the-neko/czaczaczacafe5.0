@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Send Referral - KonsultaLokál</title>
+  <style>
+    /* (same CSS you already had) */
+    * 
+    { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background:#F5F7FA; color:#1A1A1A; }
+    .dashboard-layout { display:flex; min-height:100vh; }
+    .sidebar { width:260px; background:#fff; border-right:1px solid #E0E0E0; padding:24px 0; position:fixed; height:100vh; overflow-y:auto; }
+    .sidebar-header { padding:0 24px 24px; border-bottom:1px solid #E0E0E0; }
+    .sidebar-logo { display:flex; align-items:center; gap:12px; }
+    .sidebar-logo-img { width:48px; height:48px; object-fit:contain; }
+    .sidebar-title{ font-size:18px; font-weight:600; color:#1A1A1A; }
+    .sidebar-nav { margin-top:24px; }
+    .nav-item { padding:12px 24px; display:flex; align-items:center; gap:12px; color:#666; text-decoration:none; cursor:pointer; }
+    .nav-item.active { background:#E8F1FF; color:#0A6CFF; border-right:3px solid #0A6CFF; }
+    .main-content { margin-left:260px; flex:1; }
+    .top-header { background:#fff; border-bottom:1px solid #E0E0E0; padding:20px 32px; display:flex; justify-content:space-between; align-items:center; }
+    .page-title{ font-size:24px; font-weight:600; }
+    .content-area{ padding:32px; max-width:1000px; }
+    .info-banner{ background:#E8F1FF; border-left:4px solid #0A6CFF; padding:16px 20px; border-radius:8px; margin-bottom:20px; }
+    .referral-form-card{ background:#fff; border-radius:12px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+    .form-row{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    label{ display:block; margin-bottom:8px; font-weight:600; }
+    input[type="text"], input[type="date"], select, textarea { width:100%; padding:10px 12px; border:1px solid #E0E0E0; border-radius:8px; }
+    input.invalid, textarea.invalid, select.invalid { border-color:#E65100; box-shadow: 0 0 0 3px rgba(230,81,0,0.06); }
+    .helper-text{ font-size:13px; color:#666; margin-top:6px; }
+    .form-actions{ display:flex; gap:12px; justify-content:flex-end; margin-top:18px; }
+    .btn{ padding:10px 18px; border-radius:8px; border:none; cursor:pointer; font-weight:600;}
+    .btn-cancel{ background:#F5F7FA; color:#666; }
+    .btn-primary{ background:#0A6CFF; color:white; }
+    .small-muted{ color:#666; padding:18px; text-align:center; }
+    .status-box{ margin-top:16px; padding:12px; background:#fff; border-radius:8px; border:1px solid #F0F0F0; }
+
+    /* preview & modals */
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    .modal { width:720px; max-width:95%; background:#fff; border-radius:10px; padding:18px; box-shadow:0 10px 40px rgba(0,0,0,0.2); }
+    .modal h3{ margin-bottom:12px; }
+    .modal .buttons { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+    .attached-list { margin-top:8px; font-size:14px; color:#333; }
+
+    /* responsive */
+    @media (max-width:900px) {
+      .form-row { grid-template-columns: 1fr; }
+      .main-content { margin-left:0; }
+      .sidebar { position:relative; width:100%; height:auto; border-right:none; }
+    }
+    .sidebar {
+            width: 260px;
+            background: #FFFFFF;
+            border-right: 1px solid #E0E0E0;
+            padding: 24px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .sidebar-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+            }
+
+
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            background:transparent;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-icon::before {
+            content: '+';
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .sidebar-nav {
+            margin-top: 24px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #E8F1FF;
+            color: #0A6CFF;
+        }
+
+        .nav-item.active {
+            background: #E8F1FF;
+            color: #0A6CFF;
+            border-right: 3px solid #0A6CFF;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 4px;
+            opacity: 0.6;
+        }
+         .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #E8F1FF;
+            color: #0A6CFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: #1A1A1A;
+        }
+      
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="images/logo.png" class="sidebar-logo-img" alt="logo">
+          <span class="sidebar-title"><span style="color:#2388d6;">Konsulta</span><span style="color:#35b697;">Lokál</span></span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+                <a href="login.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Today's Appointments
+                </a>
+                <a href="schedule.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Approve/Reschedule
+                </a>
+                <a href="Send Referral.html" class="nav-item active">
+                    <span class="nav-icon"></span>
+                    Send Referral
+                </a>
+                <a href="patients record.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Patient Records
+                </a>
+                <a href="communication.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Communication 
+                </a>
+                <a href="index.html" class="nav-item" style="margin-top: 40px;">
+                    <span class="nav-icon"></span>
+                    Logout
+                </a>
+
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1 class="page-title">Send Referral</h1>
+        <div class="user-info">
+          <div class="user-info">
+                    <div class="user-avatar">BH</div>
+                    <span class="user-name">Barangay Health Worker</ </div>
+          
+        </div>
+      </header>
+
+      <div class="content-area">
+        <div class="info-banner">Complete the form below to generate a referral document for a patient requiring specialized care.</div>
+
+        <div class="referral-form-card">
+          <form id="referral-form" novalidate>
+            <div style="display:flex; gap:12px; margin-bottom:12px; align-items:center;">
+              <div style="flex:1">
+                <label for="patient-select">Select Patient (auto-fill)</label>
+                <select id="patient-select">
+                  <option value="">-- select patient or type to search --</option>
+                </select>
+                <div class="helper-text">If patient not listed, type details below or add in patient records page.</div>
+              </div>
+
+              <div style="width:180px;">
+                <label for="referral-id">Referral ID</label>
+                <input type="text" id="referral-id" readonly />
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h2 class="section-title">Patient Information</h2>
+              <div class="form-row">
+                <div>
+                  <label for="patient-name">Patient Name <span style="color:#E65100">*</span></label>
+                  <input type="text" id="patient-name" placeholder="Enter patient's full name" required>
+                </div>
+
+                <div>
+                  <label for="patient-age">Age <span style="color:#E65100">*</span></label>
+                  <input type="text" id="patient-age" placeholder="Enter age" required>
+                </div>
+
+                <div>
+                  <label for="patient-sex">Sex <span style="color:#E65100">*</span></label>
+                  <select id="patient-sex" required>
+                    <option value="">Select sex</option>
+                    <option value="male">Male</option><option value="female">Female</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="referral-date">Referral Date <span style="color:#E65100">*</span></label>
+                  <input type="date" id="referral-date" value="">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h2 class="section-title">Referral Details</h2>
+              <div class="form-group">
+                <label for="receiving-facility">Receiving Facility <span style="color:#E65100">*</span></label>
+                <select id="receiving-facility" required>
+                  <option value="">Select a facility</option>
+                  <option value="rhu">Rural Health Unit - San Pablo City</option>
+                  <option value="hospital1">San Pablo City General Hospital</option>
+                  <option value="hospital2">Provincial Hospital of Laguna</option>
+                  <option value="specialty1">Laguna Medical Center</option>
+                  <option value="specialty2">San Pablo Doctors Hospital</option>
+                  <option value="specialty3">Westlake Medical Center</option>
+                  <option value="specialty4">Hospital Ng Biñan</option>
+                </select>
+                <p class="helper-text">Select the healthcare facility where the patient will be referred.</p>
+              </div>
+
+              <div class="form-group">
+                <label for="reason-referral">Reason for Referral <span style="color:#E65100">*</span></label>
+                <textarea id="reason-referral" required placeholder="Briefly describe why this patient needs to be referred..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="initial-findings">Initial Findings & Clinical Notes <span style="color:#E65100">*</span></label>
+                <textarea id="initial-findings" required placeholder="Document vital signs, symptoms, and preliminary assessment..."></textarea>
+                <p class="helper-text">Include vital signs, physical exam findings, and any tests done.</p>
+              </div>
+
+              <div class="form-group">
+                <label for="supporting-files">Attach supporting files (optional)</label>
+                <input type="file" id="supporting-files" multiple accept=".pdf,image/*" />
+                <div id="attached-list" class="attached-list"></div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-cancel" id="btn-cancel">Cancel</button>
+              <button type="button" class="btn btn-primary" id="btn-preview">Preview</button>
+              <button type="submit" class="btn btn-primary">Generate Referral</button>
+            </div>
+          </form>
+
+          <div class="status-box" id="status-box">
+            <strong>Saved Referrals</strong>
+            <div id="referrals-list" style="margin-top:8px; font-size:14px; color:#555;"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Preview Modal (populated by JS) -->
+  <div id="preview-modal" style="display:none"></div>
+
+  <!-- Confirmation modal -->
+  <div id="confirm-modal" style="display:none"></div>
+
+  <script src="js/referral.js"></script>
+</body>
+</html>

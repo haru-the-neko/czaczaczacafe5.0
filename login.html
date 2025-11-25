@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Appointments - KonsultaLokál</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #F5F7FA;
+            color: #1A1A1A;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: #FFFFFF;
+            border-right: 1px solid #E0E0E0;
+            padding: 24px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .sidebar-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+            }
+
+
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            background:transparent;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-icon::before {
+            content: '+';
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .sidebar-nav {
+            margin-top: 24px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #E8F1FF;
+            color: #0A6CFF;
+        }
+
+        .nav-item.active {
+            background: #E8F1FF;
+            color: #0A6CFF;
+            border-right: 3px solid #0A6CFF;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 4px;
+            opacity: 0.6;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+        }
+
+        .top-header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E0E0E0;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #E8F1FF;
+            color: #0A6CFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: #1A1A1A;
+        }
+
+        .content-area {
+            padding: 32px;
+        }
+
+        .date-header {
+            margin-bottom: 24px;
+        }
+
+        .current-date {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .appointments-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .appointment-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .appointment-info {
+            flex: 1;
+        }
+
+        .patient-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+        }
+
+        .appointment-details {
+            display: flex;
+            gap: 24px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .status-approved {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .status-completed {
+            background: #E3F2FD;
+            color: #1565C0;
+
+        }
+        .sidebar-logo-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;     
+    gap: 12px;
+}
+
+.sidebar-logo-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo">
+                        <img src="images/logo.png" class="sidebar-logo-img">
+                        <span class="sidebar-title">
+                        <span style="color:#2388d6;">Konsulta</span><span style="color:#35b697;">Lokál</span>
+                        </span>
+
+                    </div>
+
+                    
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="login.html" class="nav-item active">
+                    <span class="nav-icon"></span>
+                    Today's Appointments
+                </a>
+                <a href="schedule.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Approve/Reschedule
+                </a>
+                <a href="Send Referral.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Send Referral
+                </a>
+                <a href="patients record.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Patient Records
+                </a>
+                <a href="communication.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Communication 
+                </a>
+                <a href="index.html" class="nav-item" style="margin-top: 40px;">
+                    <span class="nav-icon"></span>
+                    Logout
+                </a>
+
+                 
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <h1 class="page-title">Today's Appointments</h1>
+                <div class="user-info">
+                    <div class="user-avatar">BH</div>
+                    <span class="user-name">Barangay Health Worker</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="date-header">
+                    <p class="current-date">Tuesday, November 25, 2025</p>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Appointments</div>
+                        <div class="stat-value">8</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending Approval</div>
+                        <div class="stat-value">3</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Completed</div>
+                        <div class="stat-value">2</div>
+                    </div>
+                </div>
+
+                <div class="appointments-grid">
+                    <div class="appointment-card">
+                        <div class="appointment-info">
+                            <h3 class="patient-name">Jay Albufera</h3>
+                            <div class="appointment-details">
+                                <span class="detail-item">🕐 9:00 AM</span>
+                                <span class="detail-item">📋 Check-up</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-approved">Approved</span>
+                    </div>
+
+                    <div class="appointment-card">
+                        <div class="appointment-info">
+                            <h3 class="patient-name">Leijan Hombre</h3>
+                            <div class="appointment-details">
+                                <span class="detail-item">🕐 10:00 AM</span>
+                                <span class="detail-item">💉 Immunization</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-pending">Pending</span>
+                    </div>
+
+                    <div class="appointment-card">
+                        <div class="appointment-info">
+                            <h3 class="patient-name">James Tyrone</h3>
+                            <div class="appointment-details">
+                                <span class="detail-item">🕐 11:00 AM</span>
+                                <span class="detail-item">📋 Prenatal Check-up</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-approved">Approved</span>
+                    </div>
+
+                    <div class="appointment-card">
+                        <div class="appointment-info">
+                            <h3 class="patient-name">Latrel Angelo</h3>
+                            <div class="appointment-details">
+                                <span class="detail-item">🕐 1:00 PM</span>
+                                <span class="detail-item">💊 Medication Follow-up</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-completed">Completed</span>
+                    </div>
+
+                    <div class="appointment-card">
+                        <div class="appointment-info">
+                            <h3 class="patient-name">Jiro Jumawan</h3>
+                            <div class="appointment-details">
+                                <span class="detail-item">🕐 2:00 PM</span>
+                                <span class="detail-item">📋 Blood Pressure Check</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-pending">Pending</span>
+                    </div>
+
+                    <div class="appointment-card">
+                        <div class="appointment-info">
+                            <h3 class="patient-name">Jhon Asuncion</h3>
+                            <div class="appointment-details">
+                                <span class="detail-item">🕐 3:00 PM</span>
+                                <span class="detail-item">💉 Vaccination</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-pending">Pending</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/login.js"></script>
+
+</body>
+</html>

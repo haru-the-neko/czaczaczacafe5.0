@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approve/Reschedule Appointments - KonsultaLokál</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #F5F7FA;
+            color: #1A1A1A;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: #FFFFFF;
+            border-right: 1px solid #E0E0E0;
+            padding: 24px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            background: #0A6CFF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-icon::before {
+            content: '+';
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .sidebar-nav {
+            margin-top: 24px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #E8F1FF;
+            color: #0A6CFF;
+        }
+
+        .nav-item.active {
+            background: #E8F1FF;
+            color: #0A6CFF;
+            border-right: 3px solid #0A6CFF;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 4px;
+            opacity: 0.6;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+        }
+
+        .top-header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E0E0E0;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #E8F1FF;
+            color: #0A6CFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: #1A1A1A;
+        }
+
+        .content-area {
+            padding: 32px;
+        }
+
+        .section-header {
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        /* Two Column Layout */
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 70% 30%;
+            gap: 24px;
+        }
+
+        /* Appointments List Column */
+        .appointments-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .appointment-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .patient-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+        }
+
+        .appointment-details {
+            display: flex;
+            gap: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #F5F7FA;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-approve {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .btn-approve:hover {
+            background: #C8E6C9;
+        }
+
+        .btn-reschedule {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .btn-reschedule:hover {
+            background: #FFE0B2;
+        }
+
+        /* Calendar Column */
+        .calendar-column {
+            position: sticky;
+            top: 32px;
+            height: fit-content;
+        }
+
+        .calendar-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .calendar-nav {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #F5F7FA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .calendar-nav:hover {
+            background: #E8F1FF;
+            color: #0A6CFF;
+        }
+
+        .calendar-month {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            padding: 8px 0;
+            text-transform: uppercase;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-day:not(.empty):not(.other-month):hover {
+            background: #E8F1FF;
+        }
+
+        .calendar-day.empty {
+            cursor: default;
+        }
+
+        .calendar-day.other-month {
+            color: #CCC;
+        }
+
+        .calendar-day.today {
+            background: #E8F1FF;
+            color: #0A6CFF;
+            font-weight: 600;
+        }
+
+        .calendar-day.selected {
+            background: #0A6CFF;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.has-appointment {
+            position: relative;
+        }
+
+        .calendar-day.has-appointment::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: #0A6CFF;
+            border-radius: 50%;
+        }
+
+        .calendar-day.selected.has-appointment::after {
+            background: white;
+        }
+
+        .calendar-legend {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #F5F7FA;
+        }
+
+        .legend-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 12px;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.pending {
+            background: #0A6CFF;
+        }
+
+        .legend-dot.approved {
+            background: #2E7D32;
+        }
+        .sidebar-logo {
+    display: flex;
+    align-items: center;     
+    gap: 12px;
+}
+
+.sidebar-logo-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+    <img src="images/logo.png" class="sidebar-logo-img">
+    <span class="sidebar-title">
+        <span class="sidebar-title">
+        <span style="color:#2388d6;">Konsulta</span><span style="color:#35b697;">Lokál</span>
+        </span>
+
+</div>
+
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="login.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Today's Appointments
+                </a>
+                <a href="schedule.html" class="nav-item active">
+                    <span class="nav-icon"></span>
+                    Approve/Reschedule
+                </a>
+                <a href="Send Referral.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Send Referral
+                </a>
+                <a href="patients record.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Patient Records
+                </a>
+                <a href="communication.html" class="nav-item">
+                    <span class="nav-icon"></span>
+                    Communication 
+                </a>
+                <a href="index.html" class="nav-item" style="margin-top: 40px;">
+                    <span class="nav-icon"></span>
+                    Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <h1 class="page-title">Approve / Reschedule Appointments</h1>
+                <div class="user-info">
+                    <div class="user-avatar">BH</div>
+                    <span class="user-name">Barangay Health Worker</span>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="section-header">
+                    <p class="section-subtitle">Review and take action on pending appointment requests</p>
+                </div>
+
+                <div class="two-column-layout">
+                    <!-- Left Column: Appointments List -->
+                    <div class="appointments-column">
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <div class="patient-info">
+                                    <h3>Jiro Jumawan</h3>
+                                    <div class="appointment-details">
+                                        <span class="detail-item">💉 Immunization</span>
+                                        <span class="detail-item">📅 Nov 25, 2025</span>
+                                        <span class="detail-item">🕐 10:00 AM</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-approve">Approve</button>
+                                <button class="btn btn-reschedule">Reschedule</button>
+                            </div>
+                        </div>
+
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <div class="patient-info">
+                                    <h3>James Tyrone</h3>
+                                    <div class="appointment-details">
+                                        <span class="detail-item">📋 Blood Pressure Check</span>
+                                        <span class="detail-item">📅 Nov 25, 2025</span>
+                                        <span class="detail-item">🕐 2:00 PM</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-approve">Approve</button>
+                                <button class="btn btn-reschedule">Reschedule</button>
+                            </div>
+                        </div>
+
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <div class="patient-info">
+                                    <h3>Leijan Hombre</h3>
+                                    <div class="appointment-details">
+                                        <span class="detail-item">💉 Vaccination</span>
+                                        <span class="detail-item">📅 Nov 25, 2025</span>
+                                        <span class="detail-item">🕐 3:00 PM</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-approve">Approve</button>
+                                <button class="btn btn-reschedule">Reschedule</button>
+                            </div>
+                        </div>
+
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <div class="patient-info">
+                                    <h3>Jhon Asuncion</h3>
+                                    <div class="appointment-details">
+                                        <span class="detail-item">📋 Check-up</span>
+                                        <span class="detail-item">📅 Nov 26, 2025</span>
+                                        <span class="detail-item">🕐 9:00 AM</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-approve">Approve</button>
+                                <button class="btn btn-reschedule">Reschedule</button>
+                            </div>
+                        </div>
+
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <div class="patient-info">
+                                    <h3>Latrel Angelo</h3>
+                                    <div class="appointment-details">
+                                        <span class="detail-item">📋 Prenatal Check-up</span>
+                                        <span class="detail-item">📅 Nov 26, 2025</span>
+                                        <span class="detail-item">🕐 11:00 AM</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-approve">Approve</button>
+                                <button class="btn btn-reschedule">Reschedule</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Calendar -->
+                    <div class="calendar-column">
+                        <div class="calendar-card">
+                            <div class="calendar-header">
+                                <button class="calendar-nav">‹</button>
+                                <span class="calendar-month">November 2025</span>
+                                <button class="calendar-nav">›</button>
+                            </div>
+
+                            <div class="calendar-grid">
+                                <!-- Day Headers -->
+                                <div class="calendar-day-header">Sun</div>
+                                <div class="calendar-day-header">Mon</div>
+                                <div class="calendar-day-header">Tue</div>
+                                <div class="calendar-day-header">Wed</div>
+                                <div class="calendar-day-header">Thu</div>
+                                <div class="calendar-day-header">Fri</div>
+                                <div class="calendar-day-header">Sat</div>
+
+                                <!-- Week 1 -->
+                                <div class="calendar-day empty"></div>
+                                <div class="calendar-day empty"></div>
+                                <div class="calendar-day empty"></div>
+                                <div class="calendar-day empty"></div>
+                                <div class="calendar-day empty"></div>
+                                <div class="calendar-day empty"></div>
+                                <div class="calendar-day">1</div>
+
+                                <!-- Week 2 -->
+                                <div class="calendar-day">2</div>
+                                <div class="calendar-day">3</div>
+                                <div class="calendar-day">4</div>
+                                <div class="calendar-day">5</div>
+                                <div class="calendar-day">6</div>
+                                <div class="calendar-day">7</div>
+                                <div class="calendar-day">8</div>
+
+                                <!-- Week 3 -->
+                                <div class="calendar-day">9</div>
+                                <div class="calendar-day">10</div>
+                                <div class="calendar-day">11</div>
+                                <div class="calendar-day">12</div>
+                                <div class="calendar-day">13</div>
+                                <div class="calendar-day">14</div>
+                                <div class="calendar-day">15</div>
+
+                                <!-- Week 4 -->
+                                <div class="calendar-day">16</div>
+                                <div class="calendar-day">17</div>
+                                <div class="calendar-day">18</div>
+                                <div class="calendar-day">19</div>
+                                <div class="calendar-day has-appointment">20</div>
+                                <div class="calendar-day">21</div>
+                                <div class="calendar-day">22</div>
+
+                                <!-- Week 5 -->
+                                <div class="calendar-day">23</div>
+                                <div class="calendar-day">24</div>
+                                <div class="calendar-day selected has-appointment">25</div>
+                                <div class="calendar-day has-appointment">26</div>
+                                <div class="calendar-day">27</div>
+                                <div class="calendar-day">28</div>
+                                <div class="calendar-day">29</div>
+
+                                <!-- Week 6 -->
+                                <div class="calendar-day">30</div>
+                                <div class="calendar-day other-month">1</div>
+                                <div class="calendar-day other-month">2</div>
+                                <div class="calendar-day other-month">3</div>
+                                <div class="calendar-day other-month">4</div>
+                                <div class="calendar-day other-month">5</div>
+                                <div class="calendar-day other-month">6</div>
+                            </div>
+
+                            <div class="calendar-legend">
+                                <div class="legend-title">Legend</div>
+                                <div class="legend-items">
+                                    <div class="legend-item">
+                                        <div class="legend-dot pending"></div>
+                                        <span>Has pending appointments</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/schedule.js"></script>
+
+
+</body>
+</html>
